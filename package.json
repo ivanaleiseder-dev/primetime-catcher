@@ -1,0 +1,12 @@
+{
+  "name": "primetime-catcher",
+  "version": "1.0.0",
+  "description": "Primetime Catcher - Retro TV Fangspiel",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}

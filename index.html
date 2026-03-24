@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Primetime Catcher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: #1a1410;
+    font-family: 'VT323', monospace;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #1c1610 0%, #24201a 40%, #1a1610 100%);
+  }
+
+  #tv-shell {
+    position: relative;
+    background: linear-gradient(145deg, #5c4a38 0%, #4a3828 30%, #3a2a1c 70%, #2a1c10 100%);
+    border-radius: 28px;
+    padding: 36px 40px 52px 40px;
+    box-shadow:
+      0 8px 40px rgba(0,0,0,0.7),
+      inset 0 1px 0 rgba(255,255,255,0.08),
+      inset 0 -2px 0 rgba(0,0,0,0.3);
+    max-width: 96vw;
+    max-height: 96vh;
+  }
+  #tv-shell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 28px;
+    background: repeating-linear-gradient(
+      92deg,
+      transparent 0px,
+      rgba(0,0,0,0.03) 1px,
+      transparent 2px,
+      transparent 6px
+    );
+    pointer-events: none;
+  }
+
+  #tv-brand {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #8a7a68;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+  }
+
+  #power-led {
+    position: absolute;
+    bottom: 18px;
+    right: 50px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4da8e0;
+    box-shadow: 0 0 6px #4da8e0, 0 0 12px rgba(27,105,170,0.4);
+    animation: led-pulse 2s ease-in-out infinite;
+  }
+  @keyframes led-pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+
+  #speaker-grille {
+    position: absolute;
+    bottom: 14px;
+    left: 50px;
+    width: 40px;
+    height: 12px;
+    background: repeating-linear-gradient(
+      90deg,
+      #3a2a1c 0px, #3a2a1c 2px,
+      #2a1c10 2px, #2a1c10 5px
+    );
+    border-radius: 2px;
+    opacity: 0.6;
+  }
+
+  #screen-bezel {
+    position: relative;
+    background: #0a0a0a;
+    border-radius: 16px;
+    padding: 6px;
+    box-shadow:
+      inset 0 2px 8px rgba(0,0,0,0.9),
+      inset 0 0 20px rgba(0,0,0,0.5),
+      0 1px 0 rgba(255,255,255,0.05);
+    overflow: hidden;
+  }
+
+  #screen-wrap {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: inset 0 0 60px rgba(0,0,0,0.4);
+  }
+
+  canvas {
+    display: block;
+    cursor: none;
+    border-radius: 10px;
+  }
+
+  #crt-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: 10;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15) 0px,
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 60%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 60%, transparent 100%);
+  }
+
+  #crt-vignette {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: 11;
+    background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 55%, rgba(0,0,0,0.55) 100%);
+  }
+
+  #screen-glow {
+    position: absolute;
+    inset: -8px;
+    border-radius: 20px;
+    pointer-events: none;
+    z-index: -1;
+    background: radial-gradient(ellipse at 50% 50%, rgba(27,105,170,0.10) 0%, transparent 70%);
+    animation: glow-breathe 3s ease-in-out infinite;
+  }
+  @keyframes glow-breathe {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  #crt-flicker {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: 12;
+    animation: crt-flicker-anim 0.08s infinite;
+    opacity: 0;
+  }
+  @keyframes crt-flicker-anim {
+    0% { opacity: 0; background: rgba(27,105,170,0.01); }
+    50% { opacity: 1; background: rgba(27,105,170,0.015); }
+    100% { opacity: 0; background: rgba(27,105,170,0.005); }
+  }
+
+  /* Form overlay */
+  #form-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    z-index: 20;
+    background: rgba(18, 18, 22, 0.96);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #form-overlay.active { display: flex; }
+
+  #form-overlay h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: #e0f0ff;
+    margin-bottom: 6px;
+    text-align: center;
+    line-height: 1.6;
+  }
+  #form-overlay .form-subtitle {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    color: #1B69AA;
+    margin-bottom: 18px;
+    text-align: center;
+  }
+  #form-overlay .form-score {
+    font-family: 'VT323', monospace;
+    font-size: 48px;
+    color: #1B69AA;
+    margin-bottom: 4px;
+  }
+  #form-overlay .form-score-label {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: #5a6a7a;
+    margin-bottom: 16px;
+  }
+  #form-overlay input {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    color: #e0f0ff;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid #1B69AA;
+    border-radius: 4px;
+    padding: 8px 14px;
+    width: 280px;
+    max-width: 80%;
+    margin-bottom: 10px;
+    outline: none;
+    text-align: center;
+  }
+  #form-overlay input::placeholder {
+    color: #5a7a8a;
+  }
+  #form-overlay input:focus {
+    border-color: #1B69AA;
+    box-shadow: 0 0 8px rgba(27, 105, 170, 0.4);
+  }
+  #form-overlay .form-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: #FFFFFF;
+    background: #1B69AA;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 24px;
+    cursor: pointer;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.15s;
+  }
+  #form-overlay .form-btn:hover {
+    background: #145080;
+  }
+  #form-overlay .form-btn:disabled {
+    background: #aaa;
+    color: #777;
+    cursor: not-allowed;
+  }
+  #form-overlay .form-skip {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    color: #1B69AA;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  #form-overlay .form-skip:hover { color: #104a78; }
+  #form-overlay .form-success {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: #d4a010;
+    margin-top: 8px;
+  }
+  #form-overlay .form-legal {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    color: #5a7a8a;
+    margin-top: 10px;
+    text-align: center;
+    max-width: 300px;
+    line-height: 1.3;
+  }
+</style>
+</head>
+<body>
+
+<div id="tv-shell">
+  <div id="screen-bezel">
+    <div id="screen-glow"></div>
+    <div id="screen-wrap">
+      <canvas id="gameCanvas"></canvas>
+      <div id="crt-overlay"></div>
+      <div id="crt-vignette"></div>
+      <div id="crt-flicker"></div>
+      <div id="form-overlay">
+        <div class="form-score" id="form-score-val"></div>
+        <div class="form-score-label">PUNKTE</div>
+        <h2>GEWINNSPIEL</h2>
+        <div class="form-subtitle">Trage dich ein und gewinne!</div>
+        <input type="text" id="form-name" placeholder="Dein Name" maxlength="30" autocomplete="name">
+        <input type="email" id="form-email" placeholder="Deine E-Mail" maxlength="60" autocomplete="email">
+        <button class="form-btn" id="form-submit" onclick="submitContest()">Teilnehmen</button>
+        <div class="form-success" id="form-success" style="display:none"></div>
+        <div class="form-legal">Mit der Teilnahme stimmst du den Teilnahmebedingungen zu.</div>
+        <button class="form-skip" id="form-skip" onclick="skipContest()">Überspringen</button>
+      </div>
+    </div>
+  </div>
+  <div id="tv-brand">PRIMETIME</div>
+  <div id="power-led"></div>
+  <div id="speaker-grille"></div>
+</div>
+
+<script>
+// ============================================================
+// PRIMETIME CATCHER — Retro TV Edition (Primetime Brand Redesign)
+// 30 seconds — catch falling orbs and Europa-Park stars!
+// ============================================================
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// ---- Fixed CRT screen resolution ----
+const CRT_W = 800;
+const CRT_H = 520;
+canvas.width = CRT_W;
+canvas.height = CRT_H;
+
+// Scale screen-wrap to fit window
+function resizeTV() {
+  const maxW = window.innerWidth * 0.92 - 80;
+  const maxH = window.innerHeight * 0.92 - 88;
+  const aspect = CRT_W / CRT_H;
+  let w = maxW;
+  let h = w / aspect;
+  if (h > maxH) { h = maxH; w = h * aspect; }
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+}
+resizeTV();
+window.addEventListener('resize', resizeTV);
+
+// ---- Constants ----
+const GAME_DURATION = 30;
+const PLAYER_W = 64;
+const PLAYER_BASKET_H = 24;
+const ORB_RADIUS = 16;
+const STAR_RADIUS = 12;
+const CABLE_RADIUS = 14;
+const GROUND_H = 6;
+const CATCH_TOLERANCE = 8;
+
+// ---- Primetime Brand Colors ----
+const C = {
+  bg: '#1a1a1e',
+  bgGlow: '#141416',
+  ground: '#111113',
+  groundLine: '#1B69AA',
+  player: '#1B69AA',
+  playerLight: '#3a8acc',
+  playerDark: '#104a78',
+  orbBlue: '#1B69AA',
+  orbBlueDark: '#104a78',
+  orbBlueLight: '#1B69AA',
+  text: '#c0d8e8',
+  textDim: '#6a8a9a',
+  textBright: '#e0f0ff',
+  danger: '#ff4040',
+  cableRed: '#cc2222',
+  cableDark: '#331111',
+  cableOrange: '#dd6622',
+  gold: '#c49b00',
+  goldDark: '#EFBA00',
+  particle: '#60c8ff',
+  timerWarn: '#cc7700',
+  timerDanger: '#cc2020',
+  miss: 'rgba(200, 40, 40, 0.6)',
+  phosphor: 'rgba(27, 105, 170, 0.04)',
+  starGold: '#F5C518',
+  starGoldDark: '#EFBA00',
+};
+
+// ---- Audio ----
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playSFX(freq, duration, type = 'square', vol = 0.08) {
+  if (!audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+function playCatchSound(combo) {
+  playSFX(600 + combo * 60, 0.1, 'square', 0.07);
+  setTimeout(() => playSFX(800 + combo * 60, 0.06, 'square', 0.04), 40);
+}
+function playStarCatchSound(combo) {
+  playSFX(800 + combo * 60, 0.12, 'sine', 0.08);
+  setTimeout(() => playSFX(1000 + combo * 60, 0.08, 'sine', 0.05), 30);
+  setTimeout(() => playSFX(1200 + combo * 60, 0.06, 'sine', 0.03), 60);
+}
+function playMissSound() { playSFX(150, 0.15, 'sawtooth', 0.06); }
+function playCableSound() { playSFX(100, 0.2, 'sawtooth', 0.08); setTimeout(() => playSFX(80, 0.15, 'square', 0.06), 80); }
+function playCountdownSound() { playSFX(880, 0.06, 'square', 0.05); }
+function playGameOverSound() {
+  playSFX(300, 0.12, 'square', 0.06);
+  setTimeout(() => playSFX(220, 0.12, 'square', 0.06), 120);
+  setTimeout(() => playSFX(150, 0.25, 'sawtooth', 0.06), 240);
+}
+
+// ---- Shared Leaderboard (server-backed, works for all players) ----
+const LEADERBOARD_API = window.location.origin + '/api/leaderboard';
+let leaderboard = [];
+let leaderboardLoading = false;
+
+async function loadLeaderboard() {
+  try {
+    leaderboardLoading = true;
+    const res = await fetch(LEADERBOARD_API, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        leaderboard = data.sort((a, b) => b.score - a.score).slice(0, 20);
+        if (leaderboard.length > 0 && leaderboard[0].score > highScore) {
+          highScore = leaderboard[0].score;
+        }
+      }
+    }
+  } catch(e) { console.warn('Leaderboard load error:', e); }
+  leaderboardLoading = false;
+}
+
+async function addLeaderboardEntry(name, sc) {
+  try {
+    const res = await fetch(LEADERBOARD_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name.substring(0, 20), score: sc })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        leaderboard = data.sort((a, b) => b.score - a.score).slice(0, 20);
+        if (leaderboard.length > 0 && leaderboard[0].score > highScore) {
+          highScore = leaderboard[0].score;
+        }
+      }
+    }
+  } catch(e) {
+    // Fallback: save locally if server unavailable
+    console.warn('Leaderboard save error:', e);
+    leaderboard.push({ name: name.substring(0, 20), score: sc, date: Date.now() });
+    leaderboard.sort((a, b) => b.score - a.score);
+    leaderboard = leaderboard.slice(0, 20);
+  }
+}
+
+// Load leaderboard on startup
+loadLeaderboard();
+
+// ---- Contest entries (in-memory) ----
+let contestEntries = [];
+function saveContestEntry(name, email, sc) {
+  contestEntries.push({ name, email, score: sc, date: Date.now() });
+}
+
+// ---- State ----
+let gameState = 'menu';
+let score = 0, highScore = 0, caught = 0, missed = 0;
+let starsCaught = 0, orbsCaught = 0, cablesCaught = 0;
+let timeLeft = GAME_DURATION;
+let comboCount = 0, comboTimer = 0, maxCombo = 0;
+let shakeTimer = 0;
+let countdownValue = 3, countdownTimer = 0;
+let showLeaderboard = false;
+let formShown = false;
+let formSubmitted = false;
+
+let orbs = [], particles = [], floatingTexts = [], missFlashes = [];
+let spawnTimer = 0, spawnInterval = 1.2;
+
+// VHS glitch state
+let vhsGlitchTimer = 0;
+let vhsGlitchY = 0;
+let vhsGlitchH = 0;
+let staticBurst = 0;
+
+// highScore is set by loadLeaderboard() on startup
+
+// ---- Input ----
+let playerX = CRT_W / 2, playerTargetX = CRT_W / 2;
+let usePointer = false;
+const keys = {};
+
+function canvasCoordX(clientX) {
+  const rect = canvas.getBoundingClientRect();
+  return ((clientX - rect.left) / rect.width) * CRT_W;
+}
+
+function handleStartInput() {
+  initAudio();
+  if (gameState === 'menu') {
+    if (showLeaderboard) { showLeaderboard = false; return; }
+    startCountdown();
+  }
+  if (gameState === 'gameover' && !formShown) { showForm(); }
+}
+
+document.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (['ArrowLeft','ArrowRight','KeyA','KeyD'].includes(e.code)) usePointer = false;
+  if (['Space','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+  if (e.code === 'KeyL' && gameState === 'menu') {
+    showLeaderboard = !showLeaderboard;
+    if (showLeaderboard) loadLeaderboard();
+    return;
+  }
+  if (gameState === 'menu' || gameState === 'gameover') handleStartInput();
+});
+document.addEventListener('keyup', e => { keys[e.code] = false; });
+
+canvas.addEventListener('mousemove', e => {
+  if (gameState === 'playing') { usePointer = true; playerTargetX = canvasCoordX(e.clientX); }
+});
+canvas.addEventListener('mousedown', e => {
+  initAudio();
+  if (gameState === 'menu' || gameState === 'gameover') { handleStartInput(); return; }
+  usePointer = true; playerTargetX = canvasCoordX(e.clientX);
+});
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault(); initAudio();
+  if (gameState === 'menu' || gameState === 'gameover') { handleStartInput(); return; }
+  usePointer = true;
+  if (e.touches.length > 0) playerTargetX = canvasCoordX(e.touches[0].clientX);
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (gameState === 'playing' && e.touches.length > 0) {
+    usePointer = true; playerTargetX = canvasCoordX(e.touches[0].clientX);
+  }
+}, { passive: false });
+
+const PLAYER_SPEED = 500;
+
+// ---- Particles ----
+function emitParticles(x, y, color, count, spread) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * spread,
+      vy: -Math.random() * spread * 0.6 - 20,
+      life: 0.25 + Math.random() * 0.4,
+      maxLife: 0.25 + Math.random() * 0.4,
+      color, size: 1.5 + Math.random() * 3,
+    });
+  }
+}
+function addFloatingText(x, y, text, color, size) {
+  floatingTexts.push({ x, y, text, color, size: size || 16, life: 0.9, maxLife: 0.9 });
+}
+
+// ---- Orb / Star / Cable Spawning ----
+function spawnOrb() {
+  const margin = 50;
+  const x = margin + Math.random() * (CRT_W - margin * 2);
+  const elapsed = GAME_DURATION - timeLeft;
+  const roll = Math.random();
+  // 15% cable (starts after 5s), 20% star, rest orb
+  const isCable = elapsed > 5 && roll < 0.15;
+  const isStar = !isCable && roll < 0.35; // effectively 20% of total
+  const baseSpeed = 100 + Math.random() * 80 + elapsed * 2;
+  const speed = isStar ? baseSpeed * 1.15 : isCable ? baseSpeed * 0.9 : baseSpeed;
+  const type = isCable ? 'cable' : isStar ? 'star' : 'orb';
+  const r = isCable ? CABLE_RADIUS : isStar ? STAR_RADIUS : ORB_RADIUS;
+
+  orbs.push({
+    x, y: -r * 2,
+    baseX: x, vy: speed,
+    wobbleAmp: isCable ? 20 + Math.random() * 25 : 15 + Math.random() * 30,
+    wobbleFreq: 1.5 + Math.random() * 2,
+    wobblePhase: Math.random() * Math.PI * 2,
+    radius: r,
+    rotPhase: Math.random() * Math.PI * 2,
+    rotation: Math.random() * Math.PI * 2,
+    active: true,
+    type: type,
+    trailTimer: 0,
+  });
+}
+
+// ---- Game Flow ----
+function startCountdown() {
+  gameState = 'countdown';
+  countdownValue = 3; countdownTimer = 0;
+  score = 0; caught = 0; missed = 0;
+  orbsCaught = 0; starsCaught = 0; cablesCaught = 0;
+  comboCount = 0; comboTimer = 0; maxCombo = 0;
+  timeLeft = GAME_DURATION;
+  orbs = []; particles = []; floatingTexts = []; missFlashes = [];
+  spawnTimer = 0; spawnInterval = 1.2;
+  playerX = CRT_W / 2; playerTargetX = CRT_W / 2;
+  staticBurst = 0.3;
+  formShown = false;
+  formSubmitted = false;
+}
+function startPlaying() { gameState = 'playing'; }
+
+function showForm() {
+  formShown = true;
+  const overlay = document.getElementById('form-overlay');
+  document.getElementById('form-score-val').textContent = score;
+  document.getElementById('form-name').value = '';
+  document.getElementById('form-email').value = '';
+  document.getElementById('form-submit').disabled = false;
+  document.getElementById('form-submit').style.display = '';
+  document.getElementById('form-success').style.display = 'none';
+  document.getElementById('form-skip').style.display = '';
+  document.getElementById('form-skip').textContent = 'Überspringen';
+  overlay.classList.add('active');
+  // Focus name field
+  setTimeout(() => document.getElementById('form-name').focus(), 100);
+}
+
+async function submitContest() {
+  const name = document.getElementById('form-name').value.trim();
+  const email = document.getElementById('form-email').value.trim();
+  if (!name || !email) return;
+  // Basic email validation
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+
+  const btn = document.getElementById('form-submit');
+  btn.disabled = true;
+  btn.textContent = 'WIRD GESENDET...';
+
+  // Send to FormSubmit.co → emails mail@primetime.ch
+  try {
+    const res = await fetch('https://formsubmit.co/ajax/mail@primetime.ch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        score: score,
+        caught: caught,
+        orbsCaught: orbsCaught,
+        starsCaught: starsCaught,
+        cablesCaught: cablesCaught,
+        missed: missed,
+        maxCombo: maxCombo,
+        _subject: 'Primetime Catcher: Neuer Gewinnspiel-Eintrag!',
+        _template: 'table',
+      })
+    });
+    const data = await res.json();
+    console.log('FormSubmit response:', data);
+  } catch(e) {
+    console.warn('FormSubmit error:', e);
+  }
+
+  // Save to leaderboard & contest
+  await addLeaderboardEntry(name, score);
+  saveContestEntry(name, email, score);
+  if (score > highScore) highScore = score;
+
+  btn.style.display = 'none';
+  document.getElementById('form-name').style.display = 'none';
+  document.getElementById('form-email').style.display = 'none';
+  document.getElementById('form-success').style.display = '';
+  document.getElementById('form-success').textContent = 'Danke, ' + name + '! Viel Glück!';
+  document.getElementById('form-skip').textContent = 'Weiter';
+  formSubmitted = true;
+}
+
+async function skipContest() {
+  const overlay = document.getElementById('form-overlay');
+  overlay.classList.remove('active');
+  // If they didn't submit but we need a leaderboard entry with "Anonym"
+  if (!formSubmitted && score > 0) {
+    await addLeaderboardEntry('Anonym', score);
+    if (score > highScore) highScore = score;
+  }
+  // Reset form inputs for next time
+  document.getElementById('form-name').style.display = '';
+  document.getElementById('form-email').style.display = '';
+  formShown = false;
+  resetToMenu();
+}
+// Make functions global for onclick
+window.submitContest = submitContest;
+window.skipContest = skipContest;
+
+function resetToMenu() {
+  gameState = 'menu';
+  orbs = []; particles = []; floatingTexts = []; missFlashes = [];
+  staticBurst = 0.2;
+  showLeaderboard = false;
+}
+
+// ---- Update ----
+function update(dt) {
+  // VHS glitch
+  vhsGlitchTimer -= dt;
+  if (vhsGlitchTimer <= 0) {
+    vhsGlitchTimer = 2 + Math.random() * 5;
+    vhsGlitchY = Math.random() * CRT_H;
+    vhsGlitchH = 2 + Math.random() * 8;
+  }
+  if (staticBurst > 0) staticBurst -= dt;
+
+  if (gameState === 'countdown') {
+    countdownTimer += dt;
+    if (countdownTimer >= 1) {
+      countdownTimer -= 1; countdownValue--;
+      if (countdownValue > 0) playCountdownSound();
+      if (countdownValue <= 0) { playSFX(1100, 0.15, 'square', 0.06); startPlaying(); }
+    }
+    return;
+  }
+  if (gameState !== 'playing') return;
+
+  const groundY = CRT_H - GROUND_H;
+  const catchY = groundY - PLAYER_BASKET_H;
+
+  // Timer
+  timeLeft -= dt;
+  if (timeLeft <= 10 && timeLeft > 0) {
+    const sec = Math.ceil(timeLeft), prev = Math.ceil(timeLeft + dt);
+    if (sec !== prev && sec <= 10) playCountdownSound();
+  }
+  if (timeLeft <= 0) {
+    timeLeft = 0; gameState = 'gameover';
+    if (score > highScore) highScore = score;
+    playGameOverSound();
+    staticBurst = 0.4;
+    return;
+  }
+
+  // Combo
+  if (comboTimer > 0) { comboTimer -= dt; if (comboTimer <= 0) comboCount = 0; }
+  if (shakeTimer > 0) shakeTimer -= dt;
+
+  // Player
+  if (usePointer) {
+    playerX += (playerTargetX - playerX) * Math.min(1, 14 * dt);
+  } else {
+    let dir = 0;
+    if (keys['ArrowLeft'] || keys['KeyA']) dir = -1;
+    if (keys['ArrowRight'] || keys['KeyD']) dir = 1;
+    playerX += dir * PLAYER_SPEED * dt;
+  }
+  playerX = Math.max(PLAYER_W / 2, Math.min(CRT_W - PLAYER_W / 2, playerX));
+
+  // Difficulty (tuned for 30s)
+  const elapsed = GAME_DURATION - timeLeft;
+  spawnInterval = elapsed < 8 ? 1.0 : elapsed < 16 ? 0.7 : elapsed < 24 ? 0.5 : 0.35;
+
+  spawnTimer += dt;
+  if (spawnTimer >= spawnInterval) {
+    spawnTimer -= spawnInterval;
+    spawnOrb();
+    if (elapsed > 12 && Math.random() < 0.3) spawnOrb();
+    if (elapsed > 22 && Math.random() < 0.25) spawnOrb();
+  }
+
+  // Orbs & Stars
+  for (const orb of orbs) {
+    if (!orb.active) continue;
+    orb.y += orb.vy * dt;
+    orb.wobblePhase += orb.wobbleFreq * dt;
+    orb.x = orb.baseX + Math.sin(orb.wobblePhase) * orb.wobbleAmp;
+    orb.rotPhase += dt * 0.8;
+    if (orb.type === 'cable') {
+      orb.rotation += dt * 2.0; // Cables tumble faster
+    } else if (orb.type === 'star') {
+      orb.rotation += dt * 1.5;
+      // Star trailing golden particle (reduced rate)
+      orb.trailTimer -= dt;
+      if (orb.trailTimer <= 0) {
+        orb.trailTimer = 0.25;
+        particles.push({
+          x: orb.x + (Math.random() - 0.5) * 6,
+          y: orb.y + orb.radius * 0.5,
+          vx: (Math.random() - 0.5) * 8,
+          vy: -2 + Math.random() * 6,
+          life: 0.12 + Math.random() * 0.1,
+          maxLife: 0.2,
+          color: C.starGold,
+          size: 1 + Math.random(),
+        });
+      }
+    }
+
+    if (orb.y + orb.radius >= catchY && orb.y < groundY + 10) {
+      if (Math.abs(orb.x - playerX) < PLAYER_W / 2 + orb.radius * 0.4 + CATCH_TOLERANCE) {
+        orb.active = false;
+
+        if (orb.type === 'cable') {
+          // Cable tangle — deducts points and breaks combo!
+          cablesCaught++;
+          const pts = 15;
+          score = Math.max(0, score - pts);
+          comboCount = 0; comboTimer = 0;
+          playCableSound();
+          shakeTimer = 0.25;
+          emitParticles(orb.x, catchY, C.cableRed, 4, 100);
+          emitParticles(orb.x, catchY, C.cableOrange, 2, 60);
+          addFloatingText(orb.x, catchY - 24, `-${pts}`, C.danger, 20);
+          addFloatingText(orb.x, catchY - 48, 'KABELSALAT!', C.cableRed, 12);
+          continue;
+        }
+
+        caught++; comboCount++;
+        if (comboCount > maxCombo) maxCombo = comboCount;
+        comboTimer = 1.5;
+
+        if (orb.type === 'star') {
+          starsCaught++;
+          const pts = 25 * Math.min(comboCount, 10);
+          score += pts;
+          playStarCatchSound(comboCount);
+          emitParticles(orb.x, catchY, C.starGold, 5, 120);
+          emitParticles(orb.x, catchY, '#FFFFFF', 2, 60);
+          if (comboCount > 1) {
+            addFloatingText(orb.x, catchY - 24, `+${pts}`, C.gold, 20);
+            addFloatingText(orb.x, catchY - 48, `${comboCount}x`, C.gold, 14);
+          } else {
+            addFloatingText(orb.x, catchY - 24, `+${pts}`, C.gold, 18);
+          }
+        } else {
+          orbsCaught++;
+          const pts = 10 * Math.min(comboCount, 10);
+          score += pts;
+          playCatchSound(comboCount);
+          emitParticles(orb.x, catchY, C.particle, 4, 100);
+          emitParticles(orb.x, catchY, C.gold, 2, 60);
+          if (comboCount > 1) {
+            addFloatingText(orb.x, catchY - 24, `+${pts}`, C.gold, 18);
+            addFloatingText(orb.x, catchY - 46, `${comboCount}x`, C.gold, 14);
+          } else {
+            addFloatingText(orb.x, catchY - 24, `+${pts}`, '#FFFFFF', 16);
+          }
+        }
+        continue;
+      }
+    }
+    if (orb.y - orb.radius > groundY + 5) {
+      orb.active = false;
+      if (orb.type === 'cable') {
+        // Cable missed — good! No penalty
+      } else {
+        missed++; comboCount = 0; comboTimer = 0;
+        playMissSound(); shakeTimer = 0.1;
+        missFlashes.push({ x: orb.x, life: 0.4, maxLife: 0.4 });
+        emitParticles(orb.x, groundY, C.miss, 4, 60);
+      }
+    }
+  }
+  orbs = orbs.filter(o => o.active);
+
+  particles = particles.filter(p => {
+    p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 400 * dt; p.life -= dt;
+    return p.life > 0;
+  });
+  // Cap particles to prevent accumulation lag
+  if (particles.length > 60) particles.splice(0, particles.length - 60);
+  floatingTexts = floatingTexts.filter(ft => { ft.y -= 60 * dt; ft.life -= dt; return ft.life > 0; });
+  missFlashes = missFlashes.filter(m => { m.life -= dt; return m.life > 0; });
+}
+
+// ---- Pre-compute orb dot colors for performance ----
+const _orbDotColors = [];
+for (let di = 0; di <= 20; di++) {
+  const depth = di / 20;
+  const brightness = 0.6 + depth * 0.4;
+  const rb = Math.round(50 * brightness + depth * 30);
+  const gb = Math.round(140 * brightness + depth * 50);
+  const bb = Math.round(220 * brightness + depth * 35);
+  const alpha = (0.6 + depth * 0.4).toFixed(2);
+  _orbDotColors.push(`rgba(${Math.min(255,rb)},${Math.min(255,gb)},${Math.min(255,bb)},${alpha})`);
+}
+
+// ---- Draw Primetime Orb (transparent globe with Primetime blue dots) ----
+function drawPrimetimeOrb(cx, x, y, radius, rotPhase, isMenu) {
+  const r = radius;
+  const time = _now * 0.001 + rotPhase;
+  const r2 = r * r * 1.04; // squared radius for distance check (no clip needed)
+
+  // Outer glow — brighter
+  cx.fillStyle = 'rgba(40,140,220,0.18)';
+  cx.beginPath(); cx.arc(x, y, r * 1.5, 0, Math.PI * 2); cx.fill();
+
+  const latCount = isMenu ? 12 : 7;
+  const lonCount = isMenu ? 16 : 10;
+  const rotY = time * 0.5;
+  const r88 = r * 0.88;
+
+  for (let lat = 0; lat <= latCount; lat++) {
+    const phi = (lat / latCount) * Math.PI - Math.PI / 2;
+    const cosP = Math.cos(phi);
+    const sinP = Math.sin(phi);
+    const ringDots = Math.max(3, Math.round(lonCount * cosP));
+    const thetaStep = Math.PI * 2 / ringDots;
+
+    for (let lon = 0; lon < ringDots; lon++) {
+      const theta = lon * thetaStep + rotY;
+      const dx = cosP * Math.sin(theta);
+      const dz = cosP * Math.cos(theta);
+
+      if (dz < -0.05) continue;
+
+      const px = dx * r88;
+      const py = sinP * r88;
+      // Skip dots outside orb radius (replaces expensive clip)
+      if (px * px + py * py > r2) continue;
+
+      const depth = (dz + 1) * 0.5;
+      const colorIdx = (depth * 20) | 0;
+      const dotSize = isMenu ? (depth * 2.4 + 1.0) : (depth * 1.8 + 0.7);
+
+      cx.fillStyle = _orbDotColors[colorIdx];
+      cx.fillRect(x + px - dotSize * 0.5, y + py - dotSize * 0.5, dotSize, dotSize);
+    }
+  }
+
+  // Specular highlight
+  cx.fillStyle = 'rgba(180,220,255,0.18)';
+  cx.beginPath(); cx.arc(x - r * 0.25, y - r * 0.3, r * 0.28, 0, Math.PI * 2); cx.fill();
+}
+
+// ---- Pre-compute star path vertices ----
+const _starOuter = [], _starInner = [], _starOuterBig = [], _starInnerBig = [];
+for (let i = 0; i < 5; i++) {
+  const oa = (i * 2 * Math.PI / 5) - Math.PI / 2;
+  const ia = oa + Math.PI / 5;
+  _starOuter.push([Math.cos(oa), Math.sin(oa)]);
+  _starInner.push([Math.cos(ia), Math.sin(ia)]);
+  _starOuterBig.push([Math.cos(oa) * 1.12, Math.sin(oa) * 1.12]);
+  _starInnerBig.push([Math.cos(ia) * 0.45 / 0.4 * 1.12 / 1.12, Math.sin(ia) * 0.45 / 0.4]);
+}
+function _drawStarPath(cx, outerR, innerR) {
+  cx.beginPath();
+  for (let i = 0; i < 5; i++) {
+    const ox = _starOuter[i][0] * outerR, oy = _starOuter[i][1] * outerR;
+    const ix = _starInner[i][0] * innerR, iy = _starInner[i][1] * innerR;
+    if (i === 0) cx.moveTo(ox, oy); else cx.lineTo(ox, oy);
+    cx.lineTo(ix, iy);
+  }
+  cx.closePath();
+}
+
+// ---- Draw Europa-Park Star ----
+function drawEuropaParkStar(cx, x, y, radius, rotation) {
+  const r = radius;
+
+  // Golden sphere glow
+  cx.fillStyle = 'rgba(245,197,24,0.18)';
+  cx.beginPath(); cx.arc(x, y, r * 1.5, 0, Math.PI * 2); cx.fill();
+
+  // Golden sphere body
+  cx.fillStyle = 'rgba(200,160,20,0.25)';
+  cx.beginPath(); cx.arc(x, y, r * 1.1, 0, Math.PI * 2); cx.fill();
+
+  cx.save();
+  cx.translate(x, y);
+  cx.rotate(rotation);
+
+  // Blue shadow
+  _drawStarPath(cx, r * 1.12, r * 0.45);
+  cx.fillStyle = 'rgba(27,105,170,0.5)';
+  cx.fill();
+
+  // Main golden fill
+  _drawStarPath(cx, r, r * 0.4);
+  cx.fillStyle = '#F5C518';
+  cx.fill();
+
+  // Highlight top half
+  _drawStarPath(cx, r * 0.85, r * 0.34);
+  cx.fillStyle = 'rgba(255,255,255,0.25)';
+  cx.fill();
+
+  cx.restore();
+
+  // Specular highlight on sphere
+  cx.fillStyle = 'rgba(255,240,180,0.15)';
+  cx.beginPath(); cx.arc(x - r * 0.25, y - r * 0.3, r * 0.28, 0, Math.PI * 2); cx.fill();
+}
+
+// ---- Draw Cable Tangle (Kabelsalat) ----
+function drawCableTangle(cx, x, y, radius, rotation) {
+  const r = radius;
+
+  // Red sphere glow
+  cx.fillStyle = 'rgba(204,34,34,0.18)';
+  cx.beginPath(); cx.arc(x, y, r * 1.5, 0, Math.PI * 2); cx.fill();
+
+  // Red sphere body
+  cx.fillStyle = 'rgba(180,30,30,0.25)';
+  cx.beginPath(); cx.arc(x, y, r * 1.1, 0, Math.PI * 2); cx.fill();
+
+  cx.save();
+  cx.translate(x, y);
+  cx.rotate(rotation);
+
+  // Draw tangled cable lines
+  cx.lineWidth = 2.5;
+  cx.lineCap = 'round';
+
+  // Cable 1 — red
+  cx.strokeStyle = C.cableRed;
+  cx.beginPath();
+  cx.moveTo(-r * 0.7, -r * 0.5);
+  cx.bezierCurveTo(-r * 0.2, -r * 0.8, r * 0.3, r * 0.4, r * 0.1, -r * 0.3);
+  cx.bezierCurveTo(-r * 0.1, -r * 0.9, r * 0.6, -r * 0.1, r * 0.7, r * 0.4);
+  cx.stroke();
+
+  // Cable 2 — dark
+  cx.strokeStyle = '#666666';
+  cx.beginPath();
+  cx.moveTo(r * 0.5, -r * 0.7);
+  cx.bezierCurveTo(r * 0.1, -r * 0.2, -r * 0.5, -r * 0.6, -r * 0.2, r * 0.2);
+  cx.bezierCurveTo(0, r * 0.7, -r * 0.6, r * 0.3, -r * 0.7, r * 0.6);
+  cx.stroke();
+
+  // Cable 3 — orange
+  cx.strokeStyle = C.cableOrange;
+  cx.beginPath();
+  cx.moveTo(-r * 0.4, r * 0.6);
+  cx.bezierCurveTo(r * 0.2, r * 0.2, -r * 0.3, -r * 0.4, r * 0.5, 0);
+  cx.bezierCurveTo(r * 0.8, r * 0.2, r * 0.2, r * 0.7, r * 0.6, r * 0.5);
+  cx.stroke();
+
+  // Connector plugs (small rectangles at cable ends)
+  cx.fillStyle = '#999999';
+  cx.fillRect(-r * 0.78, -r * 0.58, 4, 3);
+  cx.fillRect(r * 0.62, r * 0.32, 4, 3);
+  cx.fillRect(r * 0.42, -r * 0.78, 3, 4);
+  cx.fillRect(-r * 0.78, r * 0.52, 4, 3);
+
+  cx.restore();
+
+  // Specular highlight on sphere
+  cx.fillStyle = 'rgba(255,150,150,0.12)';
+  cx.beginPath(); cx.arc(x - r * 0.25, y - r * 0.3, r * 0.28, 0, Math.PI * 2); cx.fill();
+}
+
+function roundRect(cx, x, y, w, h, r) {
+  cx.beginPath();
+  cx.moveTo(x + r, y); cx.lineTo(x + w - r, y);
+  cx.quadraticCurveTo(x + w, y, x + w, y + r);
+  cx.lineTo(x + w, y + h - r);
+  cx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  cx.lineTo(x + r, y + h);
+  cx.quadraticCurveTo(x, y + h, x, y + h - r);
+  cx.lineTo(x, y + r);
+  cx.quadraticCurveTo(x, y, x + r, y);
+  cx.closePath();
+}
+
+// ---- Draw Catcher (Primetime blue, optimized — flat colors) ----
+function drawCatcher(cx, x, groundY) {
+  const bx = x - PLAYER_W / 2;
+  const by = groundY - PLAYER_BASKET_H;
+
+  // Glow — flat rect
+  cx.fillStyle = 'rgba(27, 105, 170, 0.12)';
+  cx.fillRect(x - PLAYER_W * 0.7, groundY - 4, PLAYER_W * 1.4, 8);
+
+  // Basket — flat color instead of linearGradient
+  cx.fillStyle = C.player;
+  cx.beginPath();
+  cx.moveTo(bx, by + 3);
+  cx.lineTo(bx + 5, by + PLAYER_BASKET_H);
+  cx.lineTo(bx + PLAYER_W - 5, by + PLAYER_BASKET_H);
+  cx.lineTo(bx + PLAYER_W, by + 3);
+  cx.quadraticCurveTo(bx + PLAYER_W - 1, by, bx + PLAYER_W - 6, by);
+  cx.lineTo(bx + 6, by);
+  cx.quadraticCurveTo(bx + 1, by, bx, by + 3);
+  cx.closePath();
+  cx.fill();
+
+  // Top highlight
+  cx.strokeStyle = 'rgba(184, 216, 240, 0.35)';
+  cx.lineWidth = 1;
+  cx.beginPath();
+  cx.moveTo(bx + 8, by + 1); cx.lineTo(bx + PLAYER_W - 8, by + 1);
+  cx.stroke();
+}
+
+// ---- CRT Post-Processing (optimized) ----
+function drawCRTEffects(cx) {
+  const w = CRT_W, h = CRT_H;
+
+  // VHS glitch — only when active (rare)
+  if (vhsGlitchTimer < 0.15) {
+    cx.save();
+    cx.globalAlpha = 0.5;
+    cx.drawImage(canvas, 0, vhsGlitchY, w, vhsGlitchH, (Math.random() - 0.5) * 10, vhsGlitchY, w, vhsGlitchH);
+    cx.restore();
+  }
+
+  // Static burst — only during transitions
+  if (staticBurst > 0) {
+    const intensity = Math.min(1, staticBurst * 3);
+    cx.save();
+    cx.globalAlpha = intensity * 0.25;
+    cx.fillStyle = '#aaa';
+    for (let i = 0; i < 40; i++) {
+      cx.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 3, 1);
+    }
+    cx.restore();
+  }
+
+  // Rolling line (very cheap)
+  const rollY = (_now * 0.03) % h;
+  cx.fillStyle = 'rgba(0,0,0,0.015)';
+  cx.fillRect(0, rollY, w, 2);
+}
+
+// ---- Render ----
+function render() {
+  const w = CRT_W, h = CRT_H;
+  const groundY = h - GROUND_H;
+
+  ctx.save();
+  if (shakeTimer > 0) {
+    const i = (shakeTimer / 0.1) * 3;
+    ctx.translate((Math.random() - 0.5) * i, (Math.random() - 0.5) * i);
+  }
+
+  // BG — dark charcoal (flat fill for performance)
+  ctx.fillStyle = '#1a1a1e';
+  ctx.fillRect(0, 0, w, h);
+
+  // Faint static noise — only every 3rd frame for performance
+  if (_now % 3 < 1) {
+    ctx.save();
+    ctx.globalAlpha = 0.03;
+    ctx.fillStyle = '#3a3a40';
+    for (let i = 0; i < 12; i++) {
+      ctx.fillRect(Math.random() * w, Math.random() * h, 2, 1);
+    }
+    ctx.restore();
+  }
+
+  // Ground — subtle blue
+  ctx.fillStyle = '#111113';
+  ctx.fillRect(0, groundY, w, GROUND_H);
+  ctx.strokeStyle = 'rgba(27, 105, 170, 0.6)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(w, groundY); ctx.stroke();
+
+  // Ground grid — single batched path instead of 25 separate strokes
+  ctx.strokeStyle = 'rgba(27, 105, 170, 0.15)';
+  ctx.beginPath();
+  for (let gx = 0; gx < w; gx += 32) {
+    ctx.moveTo(gx, groundY); ctx.lineTo(gx, h);
+  }
+  ctx.stroke();
+
+  // Miss flashes — flat rects for performance
+  for (const m of missFlashes) {
+    const alpha = (m.life / m.maxLife) * 0.3;
+    ctx.fillStyle = `rgba(255,60,60,${alpha.toFixed(2)})`;
+    const fw = 40 * (1 - m.life / m.maxLife) + 16;
+    ctx.fillRect(m.x - fw, groundY - 2, fw * 2, 4);
+  }
+
+  // Orb/Star/Cable shadows — flat rects for performance
+  for (const orb of orbs) {
+    if (!orb.active || orb.y < 0) continue;
+    const prog = Math.min(1, orb.y / (groundY - 30));
+    const sw = 16 + prog * 12;
+    if (orb.type === 'star') ctx.fillStyle = 'rgba(245,197,24,0.12)';
+    else if (orb.type === 'cable') ctx.fillStyle = 'rgba(204,34,34,0.10)';
+    else ctx.fillStyle = 'rgba(27,105,170,0.12)';
+    ctx.fillRect(orb.x - sw * 0.5, groundY - 2, sw, 3);
+  }
+
+  // Orbs, Stars & Cables
+  for (const orb of orbs) {
+    if (!orb.active) continue;
+    if (orb.type === 'cable') {
+      drawCableTangle(ctx, orb.x, orb.y, orb.radius, orb.rotation);
+    } else if (orb.type === 'star') {
+      drawEuropaParkStar(ctx, orb.x, orb.y, orb.radius, orb.rotation);
+    } else {
+      drawPrimetimeOrb(ctx, orb.x, orb.y, orb.radius, orb.rotPhase, false);
+    }
+  }
+
+  // Catcher
+  if (gameState === 'playing' || gameState === 'gameover') drawCatcher(ctx, playerX, groundY);
+
+  // Particles — use fillRect instead of arc for performance
+  for (const p of particles) {
+    const a = p.life / p.maxLife;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = p.color;
+    const s = p.size * a;
+    ctx.fillRect(p.x - s * 0.5, p.y - s * 0.5, s, s);
+  }
+  ctx.globalAlpha = 1;
+
+  // Floating texts
+  for (const ft of floatingTexts) {
+    const a = ft.life / ft.maxLife;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = ft.color;
+    ctx.font = `${ft.size}px "VT323", monospace`;
+    ctx.textAlign = 'center';
+    ctx.fillText(ft.text, ft.x, ft.y);
+  }
+  ctx.globalAlpha = 1;
+
+  // HUD
+  if (gameState === 'playing') drawHUD();
+
+  ctx.restore();
+
+  // Overlays
+  if (gameState === 'menu') {
+    if (showLeaderboard) drawLeaderboardScreen();
+    else drawMenu();
+  }
+  if (gameState === 'countdown') drawCountdown();
+  if (gameState === 'gameover' && !formShown) drawGameOver();
+
+  // CRT post-processing (always)
+  drawCRTEffects(ctx);
+}
+
+// ---- HUD ----
+function drawHUD() {
+  const w = CRT_W;
+
+  const sec = Math.ceil(timeLeft);
+  const tc = timeLeft <= 5 ? C.timerDanger : timeLeft <= 15 ? C.timerWarn : C.textBright;
+  const pulse = timeLeft <= 5 ? (Math.sin(_now * 0.01) * 0.3 + 0.7) : 1;
+
+  ctx.textAlign = 'center';
+  ctx.globalAlpha = pulse;
+  ctx.fillStyle = tc;
+  ctx.font = '38px "VT323", monospace';
+  ctx.fillText(sec.toString(), w / 2, 40);
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = C.textDim;
+  ctx.font = '14px "VT323", monospace';
+  ctx.fillText('SEKUNDEN', w / 2, 54);
+
+  const barW = 160, barH = 4;
+  const barX = (w - barW) / 2, barY = 58;
+  ctx.fillStyle = 'rgba(27,105,170,0.15)';
+  ctx.fillRect(barX, barY, barW, barH);
+  const fillW = (timeLeft / GAME_DURATION) * barW;
+  ctx.fillStyle = tc;
+  ctx.fillRect(barX, barY, Math.max(0, fillW), barH);
+
+  // Score (left)
+  ctx.textAlign = 'left';
+  ctx.fillStyle = C.textDim;
+  ctx.font = '14px "VT323", monospace';
+  ctx.fillText('SCORE', 16, 24);
+  ctx.fillStyle = C.textBright;
+  ctx.font = '28px "VT323", monospace';
+  ctx.fillText(score.toString(), 16, 50);
+
+  // Counts (right) — orbs, stars, cables
+  ctx.textAlign = 'right';
+  ctx.fillStyle = C.textDim;
+  ctx.font = '14px "VT323", monospace';
+  ctx.fillText('KUGELN', w - 130, 24);
+  ctx.fillStyle = C.orbBlueLight;
+  ctx.font = '22px "VT323", monospace';
+  ctx.fillText(orbsCaught.toString(), w - 130, 44);
+
+  ctx.fillStyle = C.textDim;
+  ctx.font = '14px "VT323", monospace';
+  ctx.fillText('STERNE', w - 66, 24);
+  ctx.fillStyle = C.gold;
+  ctx.font = '22px "VT323", monospace';
+  ctx.fillText(starsCaught.toString(), w - 66, 44);
+
+  ctx.fillStyle = C.textDim;
+  ctx.font = '14px "VT323", monospace';
+  ctx.fillText('KABEL', w - 16, 24);
+  ctx.fillStyle = C.danger;
+  ctx.font = '22px "VT323", monospace';
+  ctx.fillText(cablesCaught.toString(), w - 16, 44);
+
+  if (comboCount > 1 && comboTimer > 0) {
+    ctx.textAlign = 'center';
+    ctx.globalAlpha = Math.min(1, comboTimer / 0.3);
+    ctx.fillStyle = C.gold;
+    ctx.font = '26px "VT323", monospace';
+    ctx.fillText(`${comboCount}x COMBO`, w / 2, 88);
+    ctx.globalAlpha = 1;
+  }
+}
+
+// ---- Menu ----
+function drawMenu() {
+  const w = CRT_W, h = CRT_H;
+
+  ctx.fillStyle = 'rgba(18, 18, 22, 0.92)';
+  ctx.fillRect(0, 0, w, h);
+
+  const cy = h * 0.22;
+
+  drawPrimetimeOrb(ctx, w / 2, cy, 40, 0, true);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = C.textBright;
+  ctx.font = '18px "Press Start 2P", monospace';
+  ctx.fillText('PRIMETIME', w / 2, cy + 72);
+  ctx.fillStyle = C.orbBlueLight;
+  ctx.font = '12px "Press Start 2P", monospace';
+  ctx.fillText('CATCHER', w / 2, cy + 96);
+
+  ctx.fillStyle = C.textDim;
+  ctx.font = '20px "VT323", monospace';
+  ctx.fillText('30 Sekunden \u2012 fange so viele Kugeln', w / 2, cy + 140);
+  ctx.fillText('und Sterne wie m\u00f6glich! Meide den Kabelsalat!', w / 2, cy + 162);
+
+  // Draw legend: orb, star, cable
+  const legY = cy + 190;
+  drawPrimetimeOrb(ctx, w / 2 - 120, legY, 8, _now * 0.001, false);
+  ctx.fillStyle = C.orbBlueLight;
+  ctx.font = '16px "VT323", monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('= 10 Pkt', w / 2 - 108, legY + 4);
+
+  drawEuropaParkStar(ctx, w / 2 - 10, legY, 7, _now * 0.001);
+  ctx.fillStyle = C.gold;
+  ctx.font = '16px "VT323", monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('= 25 Pkt', w / 2 + 2, legY + 4);
+
+  drawCableTangle(ctx, w / 2 + 100, legY, 7, _now * 0.001);
+  ctx.fillStyle = C.danger;
+  ctx.font = '16px "VT323", monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('= -15', w / 2 + 112, legY + 4);
+
+  const isMobile = 'ontouchstart' in window;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = C.textDim;
+  ctx.font = '20px "VT323", monospace';
+  ctx.fillText(
+    isMobile ? 'Wische um den F\u00e4nger zu bewegen' : 'Maus oder Pfeiltasten',
+    w / 2, cy + 225
+  );
+
+  const p = Math.sin(_now * 0.003) * 0.3 + 0.7;
+  ctx.globalAlpha = p;
+  ctx.fillStyle = C.textBright;
+  ctx.font = '11px "Press Start 2P", monospace';
+  ctx.fillText(isMobile ? 'TIPPE ZUM STARTEN' : 'DR\u00dcCKE EINE TASTE', w / 2, cy + 265);
+  ctx.globalAlpha = 1;
+
+  if (highScore > 0) {
+    ctx.fillStyle = C.gold;
+    ctx.font = '18px "VT323", monospace';
+    ctx.fillText(`Highscore: ${highScore}`, w / 2, cy + 295);
+  }
+
+  // Leaderboard hint
+  if (leaderboard.length > 0) {
+    ctx.fillStyle = C.textDim;
+    ctx.font = '16px "VT323", monospace';
+    ctx.fillText('[L] Leaderboard', w / 2, cy + 320);
+  }
+}
+
+// ---- Leaderboard Screen ----
+function drawLeaderboardScreen() {
+  const w = CRT_W, h = CRT_H;
+
+  ctx.fillStyle = 'rgba(18, 18, 22, 0.95)';
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = C.gold;
+  ctx.font = '14px "Press Start 2P", monospace';
+  ctx.fillText('LEADERBOARD', w / 2, 50);
+
+  // Table header
+  const tableX = w / 2;
+  const startY = 85;
+  const rowH = 28;
+
+  ctx.fillStyle = C.textDim;
+  ctx.font = '16px "VT323", monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('RANG', tableX - 180, startY);
+  ctx.fillText('NAME', tableX - 110, startY);
+  ctx.textAlign = 'right';
+  ctx.fillText('PUNKTE', tableX + 180, startY);
+
+  // Divider
+  ctx.strokeStyle = C.textDim;
+  ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.4;
+  ctx.beginPath();
+  ctx.moveTo(tableX - 190, startY + 8);
+  ctx.lineTo(tableX + 190, startY + 8);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // Loading indicator
+  if (leaderboardLoading) {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = C.textDim;
+    ctx.font = '18px "VT323", monospace';
+    ctx.fillText('Lade Leaderboard...', w / 2, startY + 60);
+  }
+
+  // Entries — show up to 10 that fit on screen
+  const maxShow = Math.min(leaderboard.length, 10);
+  for (let i = 0; i < maxShow; i++) {
+    const entry = leaderboard[i];
+    const ey = startY + 18 + (i + 1) * rowH;
+
+    const isTop3 = i < 3;
+    const rowColor = isTop3 ? C.gold : C.textBright;
+    const dimColor = isTop3 ? 'rgba(245, 197, 24, 0.5)' : C.textDim;
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = dimColor;
+    ctx.font = '20px "VT323", monospace';
+    ctx.fillText(`${i + 1}.`, tableX - 180, ey);
+
+    ctx.fillStyle = rowColor;
+    ctx.font = '20px "VT323", monospace';
+    ctx.fillText(entry.name, tableX - 110, ey);
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = rowColor;
+    ctx.font = '22px "VT323", monospace';
+    ctx.fillText(entry.score.toString(), tableX + 180, ey);
+  }
+
+  if (leaderboard.length === 0 && !leaderboardLoading) {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = C.textDim;
+    ctx.font = '18px "VT323", monospace';
+    ctx.fillText('Noch keine Eintr\u00e4ge', w / 2, startY + 60);
+    ctx.fillText('Spiele eine Runde!', w / 2, startY + 84);
+  }
+
+  // Back hint
+  const p = Math.sin(_now * 0.003) * 0.3 + 0.7;
+  ctx.globalAlpha = p;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = C.textBright;
+  ctx.font = '16px "VT323", monospace';
+  ctx.fillText('Dr\u00fccke eine Taste zum Zur\u00fcckkehren', w / 2, h - 40);
+  ctx.globalAlpha = 1;
+}
+
+// ---- Countdown ----
+function drawCountdown() {
+  const w = CRT_W, h = CRT_H;
+  ctx.fillStyle = 'rgba(18, 18, 22, 0.85)';
+  ctx.fillRect(0, 0, w, h);
+
+  const scale = 1 + (1 - countdownTimer) * 0.3;
+  ctx.textAlign = 'center';
+  ctx.globalAlpha = 1 - countdownTimer * 0.2;
+  ctx.fillStyle = C.textBright;
+  ctx.font = `${Math.round(64 * scale)}px "VT323", monospace`;
+  ctx.fillText(countdownValue.toString(), w / 2, h / 2 + 16);
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = C.textDim;
+  ctx.font = '10px "Press Start 2P", monospace';
+  ctx.fillText('MACH DICH BEREIT', w / 2, h / 2 + 50);
+}
+
+// ---- Game Over ----
+function drawGameOver() {
+  const w = CRT_W, h = CRT_H;
+
+  ctx.fillStyle = 'rgba(18, 18, 22, 0.93)';
+  ctx.fillRect(0, 0, w, h);
+
+  const cy = h * 0.14;
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = C.textBright;
+  ctx.font = '14px "Press Start 2P", monospace';
+  ctx.fillText('ZEIT ABGELAUFEN', w / 2, cy);
+
+  ctx.fillStyle = C.orbBlueLight;
+  ctx.font = '72px "VT323", monospace';
+  ctx.fillText(score.toString(), w / 2, cy + 68);
+  ctx.fillStyle = C.textDim;
+  ctx.font = '18px "VT323", monospace';
+  ctx.fillText('PUNKTE', w / 2, cy + 88);
+
+  // Stats — show orbs, stars, cables, missed, max combo
+  const sy = cy + 115;
+  const stats = [
+    { l: 'KUGELN', v: orbsCaught, c: C.orbBlueLight },
+    { l: 'STERNE', v: starsCaught, c: C.gold },
+    { l: 'KABEL', v: cablesCaught, c: C.danger },
+    { l: 'VERPASST', v: missed, c: C.danger },
+    { l: 'MAX COMBO', v: maxCombo + 'x', c: C.gold },
+  ];
+  const sp = 80;
+  const sx0 = (w - stats.length * sp) / 2 + sp / 2;
+  for (let i = 0; i < stats.length; i++) {
+    const sx = sx0 + i * sp;
+    ctx.fillStyle = 'rgba(10, 10, 14, 0.6)';
+    roundRect(ctx, sx - 36, sy - 8, 72, 52, 4);
+    ctx.fill();
+    ctx.fillStyle = C.textDim;
+    ctx.font = '13px "VT323", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(stats[i].l, sx, sy + 8);
+    ctx.fillStyle = stats[i].c;
+    ctx.font = '28px "VT323", monospace';
+    ctx.fillText(stats[i].v.toString(), sx, sy + 34);
+  }
+
+  const total = caught + missed;
+  const acc = total > 0 ? Math.round((caught / total) * 100) : 0;
+  ctx.fillStyle = C.textDim;
+  ctx.font = '18px "VT323", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`Genauigkeit: ${acc}%`, w / 2, sy + 72);
+
+  if (score >= highScore && score > 0) {
+    ctx.fillStyle = C.gold;
+    ctx.font = '10px "Press Start 2P", monospace';
+    ctx.fillText('NEUER HIGHSCORE!', w / 2, sy + 100);
+  }
+
+  const p = Math.sin(_now * 0.003) * 0.3 + 0.7;
+  ctx.globalAlpha = p;
+  ctx.fillStyle = C.textBright;
+  ctx.font = '18px "VT323", monospace';
+  ctx.fillText('Klicke um fortzufahren', w / 2, sy + 140);
+  ctx.globalAlpha = 1;
+}
+
+// ---- Loop ----
+let lastTime = 0;
+var _now = 0; // cached performance.now() for draw functions
+function gameLoop(ts) {
+  const dt = Math.min((ts - lastTime) / 1000, 0.05);
+  lastTime = ts;
+  _now = ts;
+  update(dt);
+  render();
+  requestAnimationFrame(gameLoop);
+}
+requestAnimationFrame(gameLoop);
+
+// ---- Test hooks ----
+window.render_game_to_text = () => JSON.stringify({
+  mode: gameState, score, caught, missed,
+  orbsCaught, starsCaught,
+  timeLeft: Math.round(timeLeft * 10) / 10,
+  comboCount, maxCombo,
+  playerX: Math.round(playerX),
+  orbCount: orbs.filter(o => o.active).length,
+  leaderboardCount: leaderboard.length,
+  formShown, formSubmitted,
+});
+window.advanceTime = (ms) => {
+  const steps = Math.max(1, Math.round(ms / (1000 / 60)));
+  for (let i = 0; i < steps; i++) update(1 / 60);
+  render();
+};
+</script>
+<footer style="position:fixed;bottom:2px;right:8px;z-index:99;opacity:0.3;font-size:10px;color:#3a5a6a;">
+  <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">
+    Created with Perplexity Computer
+  </a>
+</footer>
+</body>
+</html>
