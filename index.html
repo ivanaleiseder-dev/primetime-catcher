@@ -50,6 +50,42 @@
     max-width: 96vw;
     max-height: 96vh;
   }
+  @media (max-width: 600px) {
+    #tv-shell {
+      border-radius: 16px;
+      padding: 12px 10px 32px 10px;
+    }
+    #tv-shell::before { border-radius: 16px; }
+    #screen-bezel { border-radius: 10px; padding: 3px; }
+    #screen-wrap { border-radius: 8px; }
+    canvas { border-radius: 6px; }
+    #crt-overlay, #crt-vignette, #crt-flicker { border-radius: 8px; }
+    #screen-glow { inset: -4px; border-radius: 12px; }
+    #tv-brand { font-size: 6px; bottom: 8px; letter-spacing: 2px; }
+    #power-led { bottom: 10px; right: 20px; width: 5px; height: 5px; }
+    #speaker-grille { bottom: 8px; left: 20px; width: 24px; height: 8px; }
+    #form-overlay h2 { font-size: 9px; }
+    #form-overlay .form-subtitle { font-size: 16px; margin-bottom: 10px; }
+    #form-overlay .form-score { font-size: 36px; }
+    #form-overlay input { font-size: 18px; width: 240px; padding: 6px 10px; }
+    #form-overlay .form-btn { font-size: 8px; padding: 8px 18px; }
+    #form-overlay .form-legal { font-size: 12px; }
+  }
+  @media (max-width: 400px) {
+    #tv-shell {
+      border-radius: 10px;
+      padding: 8px 6px 24px 6px;
+    }
+    #tv-shell::before { border-radius: 10px; }
+    #tv-brand { font-size: 5px; bottom: 6px; }
+    #power-led { display: none; }
+    #speaker-grille { display: none; }
+  }
+  @media (min-width: 601px) and (max-width: 1024px) {
+    #tv-shell {
+      padding: 24px 28px 44px 28px;
+    }
+  }
   #tv-shell::before {
     content: '';
     position: absolute;
@@ -150,6 +186,14 @@
       );
     mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 60%, transparent 100%);
     -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 60%, transparent 100%);
+  }
+  @media (max-width: 600px) {
+    #crt-overlay { opacity: 0.3; }
+    #crt-vignette { opacity: 0.4; }
+  }
+  @media (min-width: 601px) and (max-width: 1024px) {
+    #crt-overlay { opacity: 0.6; }
+    #crt-vignette { opacity: 0.7; }
   }
 
   #crt-vignette {
@@ -348,29 +392,40 @@ const CRT_H = 520;
 canvas.width = CRT_W;
 canvas.height = CRT_H;
 
-// Scale screen-wrap to fit window
+// ---- Device detection ----
+const IS_TOUCH = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+// Scale screen-wrap to fit window (mobile-aware)
 function resizeTV() {
-  const maxW = window.innerWidth * 0.92 - 80;
-  const maxH = window.innerHeight * 0.92 - 88;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const isMobile = vw <= 600;
+  const isTablet = vw > 600 && vw <= 1024;
+  const padX = isMobile ? 32 : isTablet ? 60 : 80;
+  const padY = isMobile ? 50 : isTablet ? 72 : 88;
+  const scale = isMobile ? 0.98 : 0.92;
+  const maxW = vw * scale - padX;
+  const maxH = vh * scale - padY;
   const aspect = CRT_W / CRT_H;
   let w = maxW;
   let h = w / aspect;
   if (h > maxH) { h = maxH; w = h * aspect; }
-  canvas.style.width = w + 'px';
-  canvas.style.height = h + 'px';
+  canvas.style.width = Math.floor(w) + 'px';
+  canvas.style.height = Math.floor(h) + 'px';
 }
 resizeTV();
 window.addEventListener('resize', resizeTV);
+window.addEventListener('orientationchange', () => setTimeout(resizeTV, 200));
 
 // ---- Constants ----
 const GAME_DURATION = 30;
-const PLAYER_W = 64;
+const PLAYER_W = IS_TOUCH ? 80 : 64;
 const PLAYER_BASKET_H = 24;
 const ORB_RADIUS = 16;
 const STAR_RADIUS = 12;
 const CABLE_RADIUS = 14;
 const GROUND_H = 6;
-const CATCH_TOLERANCE = 8;
+const CATCH_TOLERANCE = IS_TOUCH ? 16 : 8;
 
 // ---- Primetime Brand Colors ----
 const C = {
@@ -571,6 +626,10 @@ canvas.addEventListener('touchmove', e => {
     usePointer = true; playerTargetX = canvasCoordX(e.touches[0].clientX);
   }
 }, { passive: false });
+canvas.addEventListener('touchend', e => { e.preventDefault(); }, { passive: false });
+// Prevent context menu and double-tap zoom on mobile
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('dblclick', e => e.preventDefault());
 
 const PLAYER_SPEED = 500;
 
@@ -773,7 +832,7 @@ function update(dt) {
 
   // Player
   if (usePointer) {
-    playerX += (playerTargetX - playerX) * Math.min(1, 14 * dt);
+    playerX += (playerTargetX - playerX) * Math.min(1, (IS_TOUCH ? 18 : 14) * dt);
   } else {
     let dir = 0;
     if (keys['ArrowLeft'] || keys['KeyA']) dir = -1;
@@ -1612,5 +1671,66 @@ window.advanceTime = (ms) => {
     Created with Perplexity Computer
   </a>
 </footer>
-</body>
+<script data-pplx-inline-edit>
+(function(){
+  if(window===window.top)return;
+  function inlineAll(orig,clone){
+    if(orig.nodeType!==1)return;
+    try{
+      var cs=getComputedStyle(orig);
+      var t='';
+      for(var i=0;i<cs.length;i++){t+=cs[i]+':'+cs.getPropertyValue(cs[i])+';';}
+      clone.style.cssText=t;
+    }catch(e){}
+    var oc=orig.children,cc=clone.children;
+    for(var j=0;j<oc.length&&j<cc.length;j++){inlineAll(oc[j],cc[j]);}
+  }
+  function stripExternal(clone){
+    var imgs=clone.querySelectorAll('img');
+    for(var i=0;i<imgs.length;i++){
+      var s=imgs[i].getAttribute('src');
+      if(s&&!s.startsWith('data:'))imgs[i].removeAttribute('src');
+    }
+    var all=clone.querySelectorAll('*');
+    for(var i=0;i<all.length;i++){
+      var st=all[i].style.cssText;
+      if(st&&st.indexOf('url(')>=0){
+        all[i].style.cssText=st.replace(/url\(["']?(?!data:)[^)"']*["']?\)/gi,'none');
+      }
+    }
+  }
+  window.addEventListener('message',function(e){
+    if(!e.data||e.data.type!=='INLINE_EDIT_CAPTURE_REQUEST')return;
+    var scrollX=window.scrollX||window.pageXOffset||0;
+    var scrollY=window.scrollY||window.pageYOffset||0;
+    var w=window.innerWidth,h=window.innerHeight;
+    try{
+      var clone=document.documentElement.cloneNode(true);
+      var rm=clone.querySelectorAll('script,link[rel="stylesheet"],style');
+      for(var i=0;i<rm.length;i++){rm[i].remove();}
+      inlineAll(document.documentElement,clone);
+      stripExternal(clone);
+      var html=new XMLSerializer().serializeToString(clone);
+      var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'
+        +'<foreignObject width="100%" height="100%">'
+        +'<div xmlns="http://www.w3.org/1999/xhtml" style="width:'+w+'px;height:'+h+'px;overflow:hidden">'
+        +'<div style="transform:translate(-'+scrollX+'px,-'+scrollY+'px);transform-origin:top left">'
+        +html+'</div></div></foreignObject></svg>';
+      var svgUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+      var img=new Image();
+      img.onload=function(){
+        var c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0);
+        window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:c.toDataURL('image/png'),scrollX:scrollX,scrollY:scrollY},'*');
+      };
+      img.onerror=function(){
+        window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:null,scrollX:scrollX,scrollY:scrollY},'*');
+      };
+      img.src=svgUrl;
+    }catch(err){
+      window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:null,scrollX:scrollX,scrollY:scrollY},'*');
+    }
+  });
+})();
+</script></body>
 </html>
